@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "skills": {
+    "brand-templates": {
+      "source": "hyper-elements/hyper-elements",
+      "commit": "c4f01bbe9816292558f51d6a277d50f65ba7c0a0",
+      "sourceType": "github",
+      "skillPath": "skills/brand-templates/SKILL.md",
+      "computedHash": "d5a3224da0ddcb4e565895a704e8b58b91db099aa8ab64b162b91e2040884f79"
+    },
+    "email-testing": {
+      "source": "hyper-elements/hyper-elements",
+      "commit": "c4f01bbe9816292558f51d6a277d50f65ba7c0a0",
+      "sourceType": "github",
+      "skillPath": "skills/email-testing/SKILL.md",
+      "computedHash": "58f619f6a7570fefb37e4875e627569a1fba63a15ce41970bf036c9f41bc608b"
+    },
+    "hyper-elements": {
+      "source": "hyper-elements/hyper-elements",
+      "commit": "c4f01bbe9816292558f51d6a277d50f65ba7c0a0",
+      "sourceType": "github",
+      "skillPath": "skills/hyper-elements/SKILL.md",
+      "computedHash": "381051074540e5e4dad451d72b332a04ea93c969d550a978056d47fedbe81186"
+    }
+  }
+}

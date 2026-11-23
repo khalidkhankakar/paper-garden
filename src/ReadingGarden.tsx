@@ -3,7 +3,6 @@ import {
   Column,
   Divider,
   Heading,
-  Html,
   Link,
   Page,
   Row,
@@ -17,21 +16,43 @@ import {
 } from "@hyper-elements/react";
 
 /**
- * Reading Garden — native Hyper Elements edition
+ * PAPER GARDEN — A world with more trees
  *
- * Page structure, theme, typography, content, responsive layout and decorative
- * landscape are built with Hyper Elements. Html is deliberately limited to
- * the interactive reading-game controls and their browser-only behavior.
+ * A four-section editorial awareness page about the importance of trees,
+ * forests and green spaces.
+ *
+ * Built with native Hyper Elements components:
+ * Page, Section, Row, Column, Heading, Text, Span, Link, Button,
+ * Divider, Svg and Ellipse.
+ *
+ * No raw HTML island is used for the page structure.
  */
 
-const gardenTheme = defineTheme({
+const COLORS = {
+  paper: "#F7F5E9",
+  card: "#FFFDF5",
+  ink: "#252A30",
+  body: "#41484C",
+  muted: "#656A68",
+  green: "#548C68",
+  deepGreen: "#315B43",
+  leaf: "#A9D6B4",
+  paleGreen: "#DCE9C5",
+  yellow: "#E9D65B",
+  sand: "#F0E3B9",
+  coral: "#E9795F",
+  line: "#D8D4C5",
+  dark: "#252A30",
+};
+
+const paperGardenTheme = defineTheme({
   colors: {
-    background: "#F7F5E9",
-    foreground: "#252A30",
-    primary: "#E9D65B",
-    primaryForeground: "#252A30",
-    muted: "#656A68",
-    border: "#D8D4C5",
+    background: COLORS.paper,
+    foreground: COLORS.ink,
+    primary: COLORS.yellow,
+    primaryForeground: COLORS.ink,
+    muted: COLORS.muted,
+    border: COLORS.line,
   },
   fonts: {
     body: '"DM Sans", "Trebuchet MS", sans-serif',
@@ -41,29 +62,32 @@ const gardenTheme = defineTheme({
     body: 16,
   },
   lineHeights: {
-    body: 1.55,
+    body: 1.6,
   },
   elements: {
     Heading: {
       fontFamily: '"Chillax", "Trebuchet MS", ui-rounded, sans-serif',
-      color: "#252A30",
+      color: COLORS.ink,
       fontWeight: 600,
-      lineHeight: 1.04,
+      lineHeight: 1.06,
       by: {
         level: {
           1: { fontSize: 68, mobile: { fontSize: 43 } },
-          2: { fontSize: 52, mobile: { fontSize: 36 } },
-          3: { fontSize: 30, mobile: { fontSize: 25 } },
+          2: { fontSize: 48, mobile: { fontSize: 34 } },
+          3: { fontSize: 25, mobile: { fontSize: 22 } },
         },
       },
     },
     Button: {
       borderRadius: 14,
-      backgroundColor: "#E9D65B",
-      color: "#252A30",
+      backgroundColor: COLORS.yellow,
+      color: COLORS.ink,
       fontWeight: 700,
       padding: [14, 21],
       hover: { backgroundColor: "#F0E18A" },
+    },
+    Link: {
+      color: COLORS.green,
     },
   },
   styles: {
@@ -72,311 +96,610 @@ const gardenTheme = defineTheme({
       fontSize: 12,
       fontWeight: 700,
       letterSpacing: 1.8,
-      textTransform: "uppercase",
     },
     lead: {
-      color: "#41484C",
+      color: COLORS.body,
       fontSize: 19,
-      lineHeight: 1.5,
+      lineHeight: 1.55,
     },
-    card: {
-      backgroundColor: "#FFFDF5",
+    bodyCopy: {
+      color: COLORS.body,
+      fontSize: 15,
+      lineHeight: 1.65,
+    },
+    mutedCopy: {
+      color: COLORS.muted,
+      fontSize: 13,
+      lineHeight: 1.55,
+    },
+    paperCard: {
+      backgroundColor: COLORS.card,
       border: { width: 1, style: "solid", color: "#E2DECF" },
       borderRadius: 22,
-      padding: 26,
-      gap: 16,
-    },
-    smallLabel: {
-      color: "#656A68",
-      fontSize: 13,
-      lineHeight: 1.45,
+      padding: 24,
+      gap: 13,
     },
   },
 });
 
-const GAME_ISLAND = String.raw`
-<style>
-@import url('https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&f[]=dm-sans@400,500,600,700&display=swap');
-.rg-game,.rg-garden,.rg-plan{font-family:'DM Sans','Trebuchet MS',sans-serif;color:#252a30}
-.rg-game *,.rg-garden *,.rg-plan *{box-sizing:border-box}
-.rg-game{position:relative;padding:25px 27px 20px;border-radius:22px;background:#fffdf5;border:1px solid rgba(37,42,48,.09);box-shadow:0 1px 2px rgba(37,42,48,.08),0 14px 28px -14px rgba(37,42,48,.25);transform:rotate(.35deg)}
-.rg-game:before{content:'';position:absolute;z-index:-1;inset:-13px -16px -21px -11px;background:#dce9c5;rotate:-2deg;clip-path:polygon(1% 2%,98% 0,100% 96%,95% 100%,2% 98%,0 8%)}
-.rg-game-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.rg-tag{display:inline-flex;align-items:center;min-height:31px;padding:0 11px;border-radius:10px;background:#efeddf;font-size:11px;font-weight:700;letter-spacing:.04em;white-space:nowrap}
-.rg-timer{display:flex;align-items:center;gap:9px;flex:1;min-width:125px}
-.rg-track{height:12px;flex:1;overflow:hidden;border-radius:99px;background:#e5e1d1;box-shadow:inset 0 1px 2px #252a3020}
-.rg-fill{height:100%;width:100%;border-radius:inherit;background:#d6b477;transition:width .8s linear}
-.rg-time{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-.rg-sticker{position:absolute;right:-17px;top:-26px;width:96px;height:96px;display:grid;place-content:center;text-align:center;rotate:8deg;background:#e9795f;color:#fff;clip-path:polygon(50% 0,61% 8%,76% 3%,83% 17%,98% 24%,92% 40%,100% 52%,89% 64%,94% 80%,77% 84%,68% 99%,51% 91%,36% 100%,27% 86%,9% 84%,13% 67%,0 54%,10% 40%,4% 24%,22% 18%,30% 3%)}
-.rg-sticker b{font:700 22px/1 'Chillax','Trebuchet MS',sans-serif}.rg-sticker span{font-size:9px;font-weight:700;line-height:1.2;margin-top:4px}
-.rg-strip{margin:19px -10px 12px;padding:21px 16px 24px;background:#f0e3b9;rotate:-.8deg;clip-path:polygon(0 3%,7% 0,15% 2%,25% 0,38% 3%,50% 0,65% 2%,78% 0,90% 3%,100% 1%,99% 95%,91% 100%,78% 97%,64% 100%,51% 97%,36% 100%,22% 97%,9% 100%,0 96%)}
-.rg-words{display:flex;flex-wrap:wrap;gap:12px 10px;rotate:.8deg}
-.rg-tile{--tile:#e9d65b;--edge:#bba82f;position:relative;min-height:53px;padding:2px 13px 5px;border:0;border-radius:12px;background:#fffdf5;color:#252a30;font:600 clamp(24px,3vw,39px)/1 'Chillax','Trebuchet MS',sans-serif;letter-spacing:-.04em;box-shadow:inset 0 0 0 1px #252a3020,0 5px 0 var(--edge),2px 8px 8px #252a301f;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease;overflow:hidden}
-.rg-tile:before{content:'';position:absolute;inset:0;background:var(--tile);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
-.rg-tile span{position:relative;z-index:1}.rg-tile:hover{transform:translateY(-2px)}
-.rg-tile[data-tone=coral]{--tile:#e9795f;--edge:#b94f3b}.rg-tile[data-tone=mint]{--tile:#a9d6b4;--edge:#548c68}.rg-tile[data-tone=blue]{--tile:#456db2;--edge:#294c88}
-.rg-tile[aria-pressed=true]:before{transform:scaleX(1)}.rg-tile[aria-pressed=true]{transform:translateY(3px);box-shadow:inset 0 0 0 1px #252a3020,0 1px 0 var(--edge)}.rg-tile[data-tone=blue][aria-pressed=true]{color:#fff}
-.rg-tile.is-next{outline:2px solid #252a30;outline-offset:4px}.rg-tile.is-wrong{animation:rg-shake .3s ease}
-@keyframes rg-shake{25%{translate:-4px 0}50%{translate:4px 0}75%{translate:-2px 0}}
-.rg-game-bottom{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:42px}.rg-say{font-size:13px;color:#41484c;margin-right:auto}.rg-small-btn{border:0;border-radius:10px;padding:10px 12px;background:#efeddf;color:#252a30;font-size:12px;font-weight:700;cursor:pointer}.rg-small-btn:hover{background:#e5e1d1}.rg-small-btn:focus-visible,.rg-tile:focus-visible,.rg-stage:focus-visible,.rg-minutes:focus-visible{outline:2px solid #456db2;outline-offset:3px}
-.rg-garden{padding:20px;border-radius:20px;background:#fffdf5;border:1px solid #d8d4c5}.rg-garden-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.rg-garden-title{font:600 21px/1.2 'Chillax','Trebuchet MS',sans-serif}.rg-count{font-size:12px;color:#656a68;font-weight:700}.rg-stages,.rg-minutes-row{display:flex;flex-wrap:wrap;gap:7px}.rg-stage,.rg-minutes{border:1px solid #d8d4c5;border-radius:10px;padding:9px 13px;background:#f7f5e9;color:#41484c;font-size:12px;font-weight:700;cursor:pointer}.rg-stage[aria-pressed=true],.rg-minutes[aria-pressed=true]{background:#e9d65b;border-color:#bba82f;color:#252a30}.rg-beds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:15px}.rg-bed{min-height:90px;padding:12px 10px;border-radius:12px;background:#efeddf;display:flex;flex-direction:column;gap:4px}.rg-bed b{font-size:12px}.rg-bed small{font-size:10px;color:#656a68}.rg-plant{margin-top:auto;color:#548c68;font:600 24px/1 'Chillax',sans-serif}
-.rg-plan{padding:19px;border-radius:18px;background:#fffdf5;border:1px solid #d8d4c5}.rg-plan-result{margin-top:12px;font-size:13px;color:#41484c}.rg-plan-result mark{background:#f0e3b9;padding:2px 5px;border-radius:4px}
-@media(max-width:560px){.rg-game{padding:20px 17px 16px}.rg-sticker{width:76px;height:76px;right:-8px;top:-22px}.rg-sticker b{font-size:18px}.rg-tag{max-width:100%;font-size:10px}.rg-tile{min-height:47px;padding-inline:10px}.rg-beds{grid-template-columns:repeat(2,minmax(0,1fr))}.rg-game-bottom{align-items:flex-start}.rg-say{width:100%;min-height:20px}}
-@media(prefers-reduced-motion:reduce){.rg-game *,.rg-garden *,.rg-plan *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-</style>
+function Eyebrow({ children }: { children: string }) {
+  return <Text style={{ apply: ["eyebrow"] }}>{children}</Text>;
+}
 
-<article class="rg-game" aria-label="Interactive reading round">
-  <div class="rg-sticker" aria-hidden="true"><div><b>5 min</b><span>one small round<br>each day</span></div></div>
-  <div class="rg-game-top">
-    <span class="rg-tag">TODAY'S LITTLE ROUND</span>
-    <div class="rg-timer" aria-label="Reading timer">
-      <div class="rg-track"><div class="rg-fill" data-rg-fill></div></div>
-      <span class="rg-time" data-rg-time>5:00</span>
-    </div>
-  </div>
-  <div class="rg-strip"><div class="rg-words" aria-label="Read each word in order">
-    <button class="rg-tile is-next" data-rg-word data-tone="pear" aria-pressed="false"><span>The</span></button>
-    <button class="rg-tile" data-rg-word data-tone="coral" aria-pressed="false"><span>little</span></button>
-    <button class="rg-tile" data-rg-word data-tone="mint" aria-pressed="false"><span>seed</span></button>
-    <button class="rg-tile" data-rg-word data-tone="blue" aria-pressed="false"><span>grew</span></button>
-    <button class="rg-tile" data-rg-word data-tone="pear" aria-pressed="false"><span>into</span></button>
-    <button class="rg-tile" data-rg-word data-tone="coral" aria-pressed="false"><span>a</span></button>
-    <button class="rg-tile" data-rg-word data-tone="mint" aria-pressed="false"><span>flower.</span></button>
-  </div></div>
-  <div class="rg-game-bottom">
-    <p class="rg-say" data-rg-say aria-live="polite">Tap the first word when you're ready.</p>
-    <button class="rg-small-btn" data-rg-hear type="button" hidden>Listen</button>
-    <button class="rg-small-btn" data-rg-again type="button" hidden>Read again</button>
-  </div>
-</article>
+function PaperWordmark() {
+  return (
+    <Text
+      style={{
+        fontFamily: '"Chillax", "Trebuchet MS", sans-serif',
+        fontSize: 27,
+        fontWeight: 700,
+        letterSpacing: -1.4,
+        color: COLORS.ink,
+      }}
+    >
+      paper
+      <Span style={{ color: COLORS.green }}>garden</Span>
+      <Span style={{ color: COLORS.coral }}>.</Span>
+    </Text>
+  );
+}
 
-<script>
-(function(){
-  var root=document.currentScript&&document.currentScript.previousElementSibling;
-  // Html blocks may be mounted more than once in a preview; scope each island.
-  var scripts=document.querySelectorAll('.rg-game');
-  var card=scripts[scripts.length-1];
-  if(!card||card.dataset.rgReady)return;
-  card.dataset.rgReady='1';
-  var tiles=Array.prototype.slice.call(card.querySelectorAll('[data-rg-word]'));
-  var say=card.querySelector('[data-rg-say]'),time=card.querySelector('[data-rg-time]'),fill=card.querySelector('[data-rg-fill]');
-  var again=card.querySelector('[data-rg-again]'),hear=card.querySelector('[data-rg-hear]');
-  var total=300,left=300,next=0,interval=null;
-  function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
-  function paint(){time.textContent=fmt(left);fill.style.width=(left/total*100)+'%'}
-  function stop(){if(interval){clearInterval(interval);interval=null}}
-  function tick(){if(left<=0){stop();say.textContent='That is time. Lovely reading today.';return}left--;paint();if(left===0){stop();say.textContent='That is time. Lovely reading today.'}}
-  function start(){if(!interval&&left>0)interval=setInterval(tick,1000)}
-  function reset(){stop();next=0;left=total;paint();tiles.forEach(function(t,i){t.setAttribute('aria-pressed','false');t.classList.toggle('is-next',i===0)});say.textContent='Tap the first word when you are ready.';again.hidden=true}
-  card.addEventListener('rg:duration',function(event){total=Number(event.detail)||300;left=total;reset();say.textContent='Your '+Math.round(total/60)+' minute round is ready.'});
-  tiles.forEach(function(tile,index){tile.addEventListener('click',function(){if(index<next)return;if(index>next){tile.classList.remove('is-wrong');void tile.offsetWidth;tile.classList.add('is-wrong');say.textContent='First, “'+tiles[next].textContent.trim()+'”.';return}tile.setAttribute('aria-pressed','true');tile.classList.remove('is-next');next++;if(tiles[next]){tiles[next].classList.add('is-next');say.textContent=next+' of '+tiles.length+' words read. Keep going.'}else{say.textContent='All the words read. Look what you grew!';again.hidden=false;stop()}start()});tile.addEventListener('animationend',function(){tile.classList.remove('is-wrong')})});
-  again.addEventListener('click',reset);
-  if('speechSynthesis'in window&&'SpeechSynthesisUtterance'in window){hear.hidden=false;hear.addEventListener('click',function(){window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(tiles.map(function(t){return t.textContent.trim()}).join(' '));u.lang='en-GB';u.rate=.82;window.speechSynthesis.speak(u)})}
-  reset();
-  document.addEventListener('visibilitychange',function(){if(document.hidden)stop();else if(next>0&&next<tiles.length&&left>0)start()});
-})();
-(function(){
-  var root=document.querySelector('.rg-garden');if(!root||root.dataset.rgReady)return;root.dataset.rgReady='1';
-  var stages={today:{title:"Today's garden",count:'7 little plants',days:[['Today','7 words'],['Seed','just planted'],['Sprout','coming soon'],['Rest','a quiet day'],['Bloom','one flower'],['Grow','getting taller'],['Next','room to grow']]},week:{title:'One week of reading',count:'35 little plants',days:[['Monday','7 words'],['Tuesday','5 words'],['Wednesday','6 words'],['Thursday','4 words'],['Friday','7 words'],['Saturday','5 words'],['Sunday','6 words']]},fortnight:{title:'Two weeks of reading',count:'78 little plants',days:[['Week 1','35 words'],['Week 2','43 words'],['Day 8','6 words'],['Day 9','8 words'],['Day 10','5 words'],['Day 11','7 words'],['Day 12','9 words']]}};
-  var title=root.querySelector('[data-rg-garden-title]'),count=root.querySelector('[data-rg-garden-count]'),beds=root.querySelector('[data-rg-beds]');
-  root.querySelectorAll('[data-rg-stage]').forEach(function(btn){btn.addEventListener('click',function(){var s=stages[btn.dataset.rgStage];root.querySelectorAll('[data-rg-stage]').forEach(function(b){b.setAttribute('aria-pressed',String(b===btn))});title.textContent=s.title;count.textContent=s.count;beds.innerHTML=s.days.map(function(d,i){return '<div class="rg-bed"><b>'+d[0]+'</b><small>'+d[1]+'</small><span class="rg-plant">'+(i%2?'✿':'ll')+'</span></div>'}).join('')})});
-})();
-(function(){
-  var root=document.querySelector('.rg-plan');if(!root||root.dataset.rgReady)return;root.dataset.rgReady='1';
-  var result=root.querySelector('[data-rg-plan-result]');
-  root.querySelectorAll('[data-rg-minutes]').forEach(function(btn){btn.addEventListener('click',function(){root.querySelectorAll('[data-rg-minutes]').forEach(function(b){b.setAttribute('aria-pressed',String(b===btn))});var mins=btn.dataset.rgMinutes;result.innerHTML='Just <mark>'+mins+' minutes</mark> can grow something lovely.';var game=document.querySelector('.rg-game');if(game){var time=game.querySelector('[data-rg-time]'),fill=game.querySelector('[data-rg-fill]'),tiles=game.querySelectorAll('[data-rg-word]'),say=game.querySelector('[data-rg-say]'),again=game.querySelector('[data-rg-again]');var seconds=Number(mins)*60;game.dispatchEvent(new CustomEvent('rg:duration',{detail:seconds}))}})})
-})();
-</script>
-`;
+function LeafMark({ color = COLORS.green }: { color?: string }) {
+  return (
+    <Svg width={54} height={54} viewBox="0 0 54 54" title="Leaf illustration">
+      <Ellipse cx={27} cy={27} rx={18} ry={11} style={{ fill: color }} />
+      <Ellipse
+        cx={27}
+        cy={27}
+        rx={2}
+        ry={17}
+        style={{ fill: COLORS.card }}
+      />
+    </Svg>
+  );
+}
 
-// Split the island into its stylesheet, interactive markup and behavior.
-// This keeps the visible page content in the native Hyper Elements tree.
-const GAME_STYLES = GAME_ISLAND.slice(0, GAME_ISLAND.indexOf('<article class="rg-game"'));
-const GAME_MARKUP = GAME_ISLAND.slice(
-  GAME_ISLAND.indexOf('<article class="rg-game"'),
-  GAME_ISLAND.indexOf('<div class="rg-garden"'),
-);
-const GARDEN_MARKUP = GAME_ISLAND.slice(
-  GAME_ISLAND.indexOf('<div class="rg-garden"'),
-  GAME_ISLAND.indexOf('<div class="rg-plan"'),
-);
-const PLAN_MARKUP = GAME_ISLAND.slice(
-  GAME_ISLAND.indexOf('<div class="rg-plan"'),
-  GAME_ISLAND.indexOf('<script>'),
-);
-const GAME_SCRIPT = GAME_ISLAND.slice(GAME_ISLAND.indexOf('<script>'));
+function Landscape() {
+  return (
+    <Column style={{ width: "100%", gap: 0 }}>
+      <Svg
+        width={1320}
+        height={210}
+        viewBox="0 0 1320 210"
+        title="Layered paper hills with a young tree"
+      >
+        <Ellipse cx={660} cy={210} rx={760} ry={125} style={{ fill: "#E7DDBB" }} />
+        <Ellipse cx={340} cy={215} rx={520} ry={105} style={{ fill: COLORS.paleGreen }} />
+        <Ellipse cx={1010} cy={220} rx={530} ry={112} style={{ fill: COLORS.leaf }} />
+        <Ellipse cx={670} cy={238} rx={650} ry={90} style={{ fill: "#6F9B72" }} />
+        <Ellipse cx={665} cy={104} rx={38} ry={38} style={{ fill: COLORS.green }} />
+        <Ellipse cx={635} cy={125} rx={28} ry={27} style={{ fill: "#78A77A" }} />
+        <Ellipse cx={694} cy={127} rx={29} ry={28} style={{ fill: "#A9D6B4" }} />
+        <Ellipse cx={665} cy={162} rx={7} ry={35} style={{ fill: "#9A7048" }} />
+      </Svg>
+    </Column>
+  );
+}
 
-const Eyebrow = ({ children }: { children: string }) => (
-  <Text style={{ apply: ["eyebrow"] }}>{children}</Text>
-);
+function StatCard({
+  value,
+  label,
+  detail,
+  tone,
+}: {
+  value: string;
+  label: string;
+  detail: string;
+  tone: "green" | "sand" | "coral";
+}) {
+  const background =
+    tone === "green" ? "#DCE9C5" : tone === "sand" ? COLORS.sand : "#F5DDD3";
+  const accent =
+    tone === "coral" ? "#B94F3B" : COLORS.deepGreen;
 
-export default function ReadingGardenPage() {
+  return (
+    <Column
+      style={{
+        flex: 1,
+        backgroundColor: background,
+        borderRadius: 20,
+        padding: 21,
+        gap: 8,
+      }}
+    >
+      <Heading level={2} style={{ color: accent, fontSize: 37 }}>
+        {value}
+      </Heading>
+      <Text style={{ color: COLORS.ink, fontSize: 14, fontWeight: 700 }}>
+        {label}
+      </Text>
+      <Text style={{ color: COLORS.body, fontSize: 12, lineHeight: 1.5 }}>
+        {detail}
+      </Text>
+    </Column>
+  );
+}
+
+function BenefitCard({
+  number,
+  title,
+  description,
+  symbol,
+  background,
+}: {
+  number: string;
+  title: string;
+  description: string;
+  symbol: string;
+  background: string;
+}) {
+  return (
+    <Column
+      style={{
+        flex: 1,
+        minWidth: 0,
+        backgroundColor: background,
+        borderRadius: 20,
+        padding: 22,
+        gap: 13,
+      }}
+    >
+      <Row style={{ alignItems: "center", justifyContent: "space-between" }}>
+        <Text
+          style={{
+            color: "#A56A32",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: 1.4,
+          }}
+        >
+          {number}
+        </Text>
+        <Text style={{ color: COLORS.green, fontSize: 27 }}>{symbol}</Text>
+      </Row>
+      <Heading level={3}>{title}</Heading>
+      <Text style={{ color: COLORS.body, fontSize: 13, lineHeight: 1.6 }}>
+        {description}
+      </Text>
+    </Column>
+  );
+}
+
+export default function PaperGardenTreesPage() {
   return (
     <Page
-      theme={gardenTheme}
+      theme={paperGardenTheme}
       width={1440}
       lang="en"
-      title="Paper Garden — Every word helps something grow"
-      description="A gentle reading ritual that turns every word into a little plant."
-      style={{ backgroundColor: token("colors.background"), gap: 0 }}
+      title="Paper Garden — A world with more trees"
+      description="Discover how trees support climate, biodiversity, water and healthier communities."
+      style={{
+        backgroundColor: token("colors.background"),
+        color: token("colors.foreground"),
+        gap: 0,
+      }}
     >
-      {/* Font loading and browser-only reading interactions. */}
-      <Html html={GAME_STYLES} />
-      <Html html={'<span id="top"></span>'} />
-
-      {/* Navigation */}
-      <Section style={{ backgroundColor: "#FFFDF5", padding: [18, 42], border: { bottom: { width: 1, style: "solid", color: "#E4E0D3" } } }}>
+      {/* NAVIGATION */}
+      <Section
+        style={{
+          backgroundColor: COLORS.card,
+          padding: [18, 42],
+          border: {
+            bottom: { width: 1, style: "solid", color: "#E4E0D3" },
+          },
+        }}
+      >
         <Row style={{ alignItems: "center", justifyContent: "space-between", gap: 18 }}>
-          <Text style={{ fontFamily: '"Chillax", sans-serif', fontSize: 27, fontWeight: 700, letterSpacing: -1.4 }}>
-            paper<Span style={{ color: "#548C68" }}>garden</Span><Span style={{ color: "#E9795F" }}>.</Span>
-          </Text>
-          <Row stackOnMobile style={{ alignItems: "center", justifyContent: "end", gap: 22 }}>
-            <Link href="#how" style={{ color: "#41484C", fontSize: 13, textDecoration: "none" }}>How it works</Link>
-            <Link href="#garden" style={{ color: "#41484C", fontSize: 13, textDecoration: "none" }}>The garden</Link>
-            <Link href="#grown" style={{ color: "#41484C", fontSize: 13, textDecoration: "none" }}>For grown-ups</Link>
-            <Button href="#start">Start a reading round</Button>
+          <PaperWordmark />
+          <Row
+            stackOnMobile
+            style={{ alignItems: "center", justifyContent: "end", gap: 22 }}
+          >
+            <Link href="#why" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none" }}>
+              Why trees
+            </Link>
+            <Link href="#life" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none" }}>
+              Life & nature
+            </Link>
+            <Link href="#action" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none" }}>
+              Take action
+            </Link>
+            <Button href="#action">Grow a greener future</Button>
           </Row>
         </Row>
       </Section>
 
-      {/* Hero */}
-      <Section style={{ padding: [76, 42, 54], gap: 30 }}>
-        <Row stackOnMobile style={{ alignItems: "center", gap: 58 }}>
-          <Column style={{ flex: 0.95, gap: 22 }}>
-            <Eyebrow>A little reading ritual, a little paper magic</Eyebrow>
-            <Heading level={1} style={{ fontSize: 68, mobile: { fontSize: 44 }, maxWidth: 560, letterSpacing: -3.2 }}>
-              Every word helps something <Span style={{ color: "#548C68" }}>grow.</Span>
+      {/* SECTION 1 — HERO */}
+      <Section style={{ padding: [76, 42, 30], gap: 26 }}>
+        <Row stackOnMobile style={{ alignItems: "center", gap: 54 }}>
+          <Column style={{ flex: 1.05, gap: 21 }}>
+            <Eyebrow>A little more green changes everything</Eyebrow>
+            <Heading
+              level={1}
+              style={{
+                fontSize: 68,
+                mobile: { fontSize: 43 },
+                maxWidth: 620,
+                letterSpacing: -3.2,
+              }}
+            >
+              A world with more trees is a world that can{" "}
+              <Span style={{ color: COLORS.green }}>breathe.</Span>
             </Heading>
-            <Text style={{ apply: ["lead"], maxWidth: 510 }}>
-              Five gentle minutes of reading. One word at a time. Watch a tiny paper garden grow as your child reads.
+            <Text style={{ apply: ["lead"], maxWidth: 540 }}>
+              Trees are more than beautiful parts of a landscape. They cool our
+              cities, shelter wildlife, protect soil and help keep the natural
+              systems we all depend on in balance.
             </Text>
             <Row stackOnMobile style={{ gap: 12, alignItems: "center" }}>
-              <Button href="#start">Grow your first garden</Button>
-              <Button href="#how" style={{ backgroundColor: "#FFFDF5", color: "#252A30", border: { width: 1, style: "solid", color: "#D8D4C5" } }}>See how it works</Button>
+              <Button href="#why">Discover why trees matter</Button>
+              <Button
+                href="#action"
+                style={{
+                  backgroundColor: COLORS.card,
+                  color: COLORS.ink,
+                  border: { width: 1, style: "solid", color: COLORS.line },
+                }}
+              >
+                Find your part
+              </Button>
             </Row>
-            <Text style={{ color: "#656A68", fontSize: 12 }}>Made for small readers and the people who read beside them.</Text>
+            <Text style={{ color: COLORS.muted, fontSize: 12 }}>
+              A small invitation to notice, protect and grow the living world.
+            </Text>
           </Column>
-          <Column style={{ flex: 1.05, gap: 8 }}>
-            <Html html={GAME_MARKUP} />
+
+          <Column
+            style={{
+              flex: 0.95,
+              backgroundColor: COLORS.sand,
+              borderRadius: 26,
+              padding: 18,
+              gap: 0,
+            }}
+          >
+            <Svg
+              width={560}
+              height={430}
+              viewBox="0 0 560 430"
+              title="Paper-cut illustration of a flourishing tree"
+            >
+              <Ellipse cx={280} cy={388} rx={250} ry={34} style={{ fill: "#D3C69C" }} />
+              <Ellipse cx={160} cy={360} rx={170} ry={48} style={{ fill: "#DCE9C5" }} />
+              <Ellipse cx={420} cy={365} rx={175} ry={52} style={{ fill: "#A9D6B4" }} />
+              <Ellipse cx={280} cy={220} rx={30} ry={145} style={{ fill: "#9A7048" }} />
+              <Ellipse cx={180} cy={170} rx={100} ry={93} style={{ fill: "#6F9B72" }} />
+              <Ellipse cx={285} cy={110} rx={116} ry={105} style={{ fill: "#548C68" }} />
+              <Ellipse cx={390} cy={177} rx={104} ry={95} style={{ fill: "#A9D6B4" }} />
+              <Ellipse cx={278} cy={232} rx={95} ry={88} style={{ fill: "#78A77A" }} />
+              <Ellipse cx={115} cy={80} rx={19} ry={19} style={{ fill: "#E9D65B" }} />
+              <Ellipse cx={448} cy={76} rx={12} ry={12} style={{ fill: "#E9795F" }} />
+              <Ellipse cx={390} cy={285} rx={8} ry={8} style={{ fill: "#E9D65B" }} />
+              <Ellipse cx={165} cy={285} rx={7} ry={7} style={{ fill: "#FFFDF5" }} />
+            </Svg>
+            <Text
+              style={{
+                color: COLORS.deepGreen,
+                fontFamily: '"Chillax", sans-serif',
+                fontSize: 15,
+                fontWeight: 600,
+                textAlign: "center",
+              }}
+            >
+              Rooted in nature. Connected to every life.
+            </Text>
           </Column>
         </Row>
-        <Svg width={1320} height={170} viewBox="0 0 1320 170" title="Layered paper garden landscape">
-          <Ellipse cx={660} cy={170} rx={730} ry={115} style={{ fill: "#DCE8B9" }} />
-          <Ellipse cx={650} cy={178} rx={690} ry={95} style={{ fill: "#A9D6B4" }} />
-          <Ellipse cx={680} cy={195} rx={610} ry={78} style={{ fill: "#6F9B72" }} />
-        </Svg>
+        <Landscape />
       </Section>
 
-      {/* How it works */}
-      <Section style={{ padding: [88, 42], gap: 42 }}>
-        <Html html={'<span id="how"></span>'} />
-        <Row stackOnMobile style={{ alignItems: "end", gap: 54 }}>
-          <Column style={{ flex: 1.4, gap: 14 }}>
-            <Eyebrow>The reading round</Eyebrow>
-            <Heading level={2}>Small steps make a lovely difference.</Heading>
+      {/* SECTION 2 — CLIMATE, AIR AND CITIES */}
+      <Section
+        style={{
+          backgroundColor: COLORS.card,
+          padding: [82, 42],
+          gap: 34,
+        }}
+      >
+        <Row stackOnMobile style={{ alignItems: "end", gap: 42 }}>
+          <Column style={{ flex: 1.25, gap: 14 }}>
+            <Link href="#why" attrs={{ id: "why" }} style={{ color: "#A56A32", fontSize: 12, fontWeight: 700, letterSpacing: 1.8, textDecoration: "none" }}>01 / THE PLANET'S NATURAL HELPERS</Link>
+            <Heading level={2}>
+              Trees keep our planet{" "}
+              <Span style={{ color: COLORS.green }}>in balance.</Span>
+            </Heading>
           </Column>
-          <Column style={{ flex: 1, gap: 8 }}>
-            <Text style={{ apply: ["lead"], fontSize: 17 }}>A short sentence. A few words. A little time together. Every word read becomes a new plant in the garden.</Text>
+          <Column style={{ flex: 0.9, gap: 8 }}>
+            <Text style={{ apply: ["lead"], fontSize: 17 }}>
+              From the air we breathe to the temperature of our streets, trees
+              quietly support the conditions that make life possible.
+            </Text>
           </Column>
         </Row>
-        <Row stackOnMobile style={{ gap: 18 }}>
-          <Column style={{ flex: 1, backgroundColor: "#FFFDF5", border: { width: 1, style: "solid", color: "#E2DECF" }, borderRadius: 20, padding: 22, gap: 13 }}>
-            <Text style={{ color: "#A56A32", fontSize: 11, fontWeight: 700, letterSpacing: 1.4 }}>01 / READ</Text>
-            <Heading level={3}>The little seed grew.</Heading>
-            <Text style={{ color: "#656A68", fontSize: 13 }}>One word at a time. Find the next word and tap it when you're ready.</Text>
-            <Text style={{ color: "#548C68", fontSize: 28 }}>✳   ⌁   ✳</Text>
+
+        <Row stackOnMobile style={{ gap: 17 }}>
+          <BenefitCard
+            number="01 / CLIMATE"
+            title="A natural climate ally"
+            description="Trees absorb carbon dioxide as they grow and store carbon in their trunks, branches, roots and surrounding soils."
+            symbol="☼"
+            background="#DCE9C5"
+          />
+          <BenefitCard
+            number="02 / CLEANER AIR"
+            title="A breath of fresh air"
+            description="Leaves capture some airborne particles, while trees release oxygen through photosynthesis and help improve local air quality."
+            symbol="✳"
+            background="#F0E3B9"
+          />
+          <BenefitCard
+            number="03 / COOLER PLACES"
+            title="Shade that cools"
+            description="Canopies shade buildings and streets, while water released by leaves helps cool the surrounding environment."
+            symbol="❋"
+            background="#F5DDD3"
+          />
+        </Row>
+
+        <Row stackOnMobile style={{ alignItems: "center", gap: 20 }}>
+          <StatCard
+            value="CO₂"
+            label="Carbon storage"
+            detail="Trees and forest soils hold carbon that would otherwise add to the atmosphere."
+            tone="green"
+          />
+          <StatCard
+            value="SHADE"
+            label="Cooler neighbourhoods"
+            detail="Urban trees can reduce heat exposure on streets, paths and public spaces."
+            tone="sand"
+          />
+          <StatCard
+            value="O₂"
+            label="Photosynthesis"
+            detail="Leaves use sunlight, water and carbon dioxide to make sugars and release oxygen."
+            tone="coral"
+          />
+        </Row>
+        <Text style={{ color: COLORS.muted, fontSize: 11 }}>
+          Note: Benefits vary by tree species, location, climate and how green
+          spaces are planned and maintained.
+        </Text>
+      </Section>
+
+      {/* SECTION 3 — BIODIVERSITY, WATER AND SOIL */}
+      <Section
+        style={{
+          backgroundColor: "#EFEDDF",
+          padding: [82, 42],
+          gap: 32,
+        }}
+      >
+        <Row stackOnMobile style={{ alignItems: "center", gap: 44 }}>
+          <Column style={{ flex: 0.95, gap: 13 }}>
+            <Link href="#life" attrs={{ id: "life" }} style={{ color: "#A56A32", fontSize: 12, fontWeight: 700, letterSpacing: 1.8, textDecoration: "none" }}>02 / A HOME FOR LIVING THINGS</Link>
+            <Heading level={2}>
+              Every tree is part of a much bigger{" "}
+              <Span style={{ color: COLORS.green }}>story.</Span>
+            </Heading>
+            <Text style={{ apply: ["lead"], fontSize: 17 }}>
+              A tree is not standing alone. It is a living neighbourhood for
+              birds, insects, fungi, mammals and countless organisms beneath
+              the soil.
+            </Text>
+            <Text style={{ apply: ["bodyCopy"] }}>
+              Forests and healthy green spaces connect habitats, help protect
+              watersheds and support the natural cycles that communities and
+              wildlife rely on.
+            </Text>
           </Column>
-          <Column style={{ flex: 1, backgroundColor: "#F0E3B9", borderRadius: 20, padding: 22, gap: 13 }}>
-            <Text style={{ color: "#A56A32", fontSize: 11, fontWeight: 700, letterSpacing: 1.4 }}>02 / GROW</Text>
-            <Heading level={3}>A new leaf appears.</Heading>
-            <Text style={{ color: "#41484C", fontSize: 13 }}>Each word becomes a little sign of progress. No points, no pressure.</Text>
-            <Text style={{ color: "#548C68", fontSize: 28 }}>♧　✿　♧</Text>
+
+          <Column
+            style={{
+              flex: 1.05,
+              backgroundColor: COLORS.card,
+              borderRadius: 24,
+              padding: 18,
+              gap: 12,
+            }}
+          >
+            <Svg
+              width={560}
+              height={320}
+              viewBox="0 0 560 320"
+              title="Paper illustration of a tree canopy and living habitat"
+            >
+              <Ellipse cx={280} cy={290} rx={250} ry={25} style={{ fill: "#D8D4C5" }} />
+              <Ellipse cx={280} cy={172} rx={23} ry={110} style={{ fill: "#9A7048" }} />
+              <Ellipse cx={175} cy={112} rx={100} ry={83} style={{ fill: "#6F9B72" }} />
+              <Ellipse cx={278} cy={76} rx={110} ry={83} style={{ fill: COLORS.green }} />
+              <Ellipse cx={385} cy={120} rx={100} ry={85} style={{ fill: COLORS.leaf }} />
+              <Ellipse cx={280} cy={155} rx={88} ry={74} style={{ fill: "#78A77A" }} />
+              <Ellipse cx={120} cy={235} rx={48} ry={20} style={{ fill: COLORS.sand }} />
+              <Ellipse cx={440} cy={235} rx={50} ry={20} style={{ fill: COLORS.paleGreen }} />
+              <Ellipse cx={170} cy={88} rx={8} ry={8} style={{ fill: COLORS.yellow }} />
+              <Ellipse cx={350} cy={61} rx={7} ry={7} style={{ fill: COLORS.coral }} />
+              <Ellipse cx={420} cy={139} rx={8} ry={8} style={{ fill: COLORS.yellow }} />
+              <Ellipse cx={245} cy={205} rx={6} ry={6} style={{ fill: COLORS.card }} />
+            </Svg>
+            <Text style={{ color: COLORS.muted, fontSize: 11, textAlign: "center" }}>
+              A healthy tree supports life above and below the ground.
+            </Text>
           </Column>
-          <Column style={{ flex: 1, backgroundColor: "#DCE9C5", borderRadius: 20, padding: 22, gap: 13 }}>
-            <Text style={{ color: "#A56A32", fontSize: 11, fontWeight: 700, letterSpacing: 1.4 }}>03 / PAUSE</Text>
-            <Heading level={3}>That's enough.</Heading>
-            <Text style={{ color: "#41484C", fontSize: 13 }}>Five gentle minutes. Celebrate the effort, not the speed.</Text>
-            <Text style={{ color: "#548C68", fontSize: 28 }}>☼　✿　⌁</Text>
-          </Column>
+        </Row>
+
+        <Row stackOnMobile style={{ gap: 17 }}>
+          <BenefitCard
+            number="01 / BIODIVERSITY"
+            title="Shelter for wildlife"
+            description="Trees provide nesting places, food and shelter for birds, insects and other animals. Native species are especially valuable to local ecosystems."
+            symbol="✿"
+            background={COLORS.card}
+          />
+          <BenefitCard
+            number="02 / WATER"
+            title="Part of the water cycle"
+            description="Tree roots help water enter the soil, while canopies slow rainfall and forests can help protect rivers and watersheds."
+            symbol="⌁"
+            background="#DCE9C5"
+          />
+          <BenefitCard
+            number="03 / HEALTHY SOIL"
+            title="Ground that holds together"
+            description="Roots help bind soil, reduce erosion and create conditions for the organisms that keep soil healthy and productive."
+            symbol="♧"
+            background={COLORS.sand}
+          />
         </Row>
       </Section>
 
-      {/* Garden progress */}
-      <Section style={{ backgroundColor: "#EFEDDF", padding: [82, 42], gap: 26 }}>
-        <Html html={'<span id="garden"></span>'} />
-        <Row stackOnMobile style={{ alignItems: "center", gap: 38 }}>
-          <Column style={{ flex: 0.9, gap: 15 }}>
-            <Eyebrow>A garden that remembers</Eyebrow>
-            <Heading level={2}>Look how much has grown.</Heading>
-            <Text style={{ apply: ["lead"], fontSize: 17 }}>Choose a day to see the garden change. The little plants stay, making every reading round part of a bigger story.</Text>
-            <Text style={{ color: "#548C68", fontSize: 28 }}>⌁　✿　⌁　✿</Text>
+      {/* SECTION 4 — PRACTICAL ACTION */}
+      <Section style={{ padding: [84, 42], gap: 32 }}>
+        <Row stackOnMobile style={{ alignItems: "end", gap: 42 }}>
+          <Column style={{ flex: 1.2, gap: 14 }}>
+            <Link href="#action" attrs={{ id: "action" }} style={{ color: "#A56A32", fontSize: 12, fontWeight: 700, letterSpacing: 1.8, textDecoration: "none" }}>03 / SMALL ACTIONS, LASTING ROOTS</Link>
+            <Heading level={2}>
+              A greener future grows from{" "}
+              <Span style={{ color: COLORS.green }}>what we do next.</Span>
+            </Heading>
           </Column>
-          <Column style={{ flex: 1.1, gap: 0 }}>
-            <Html html={GARDEN_MARKUP} />
+          <Column style={{ flex: 0.9, gap: 8 }}>
+            <Text style={{ apply: ["lead"], fontSize: 17 }}>
+              Planting a tree is a beginning. Caring for it, protecting existing
+              forests and choosing the right native species are what help it
+              thrive.
+            </Text>
           </Column>
         </Row>
-      </Section>
 
-      {/* For grown-ups */}
-      <Section style={{ padding: [88, 42], gap: 20 }}>
-        <Html html={'<span id="grown"></span>'} />
-        <Row stackOnMobile style={{ alignItems: "center", gap: 48 }}>
-          <Column style={{ flex: 1, gap: 10 }}>
-            <Eyebrow>For the people beside them</Eyebrow>
-            <Heading level={2}>A calmer way to build a reading habit.</Heading>
-          </Column>
-          <Column style={{ flex: 1, gap: 16 }}>
-            <Column style={{ gap: 5 }}>
-              <Heading level={3} style={{ color: "#548C68" }}>5 minutes</Heading>
-              <Text style={{ color: "#656A68", fontSize: 14 }}>A small, manageable daily ritual.</Text>
+        <Row stackOnMobile style={{ gap: 17 }}>
+          <BenefitCard
+            number="01 / PLANT WELL"
+            title="Choose the right tree"
+            description="Select native or locally suitable species, consider the space they need and ask local experts about the best time to plant."
+            symbol="✳"
+            background="#DCE9C5"
+          />
+          <BenefitCard
+            number="02 / CARE FOR IT"
+            title="Help young trees thrive"
+            description="Water appropriately, protect young roots and stems, and check on the tree as it grows. A planted tree needs ongoing care."
+            symbol="⌁"
+            background={COLORS.sand}
+          />
+          <BenefitCard
+            number="03 / PROTECT HABITATS"
+            title="Keep existing forests standing"
+            description="Support responsible land use, reduce waste, respect green spaces and take part in local conservation efforts."
+            symbol="♧"
+            background="#F5DDD3"
+          />
+        </Row>
+
+        <Column
+          style={{
+            backgroundColor: COLORS.deepGreen,
+            borderRadius: 26,
+            padding: [34, 34],
+            gap: 20,
+          }}
+        >
+          <Row stackOnMobile style={{ alignItems: "center", gap: 28 }}>
+            <Column style={{ flex: 1, gap: 13 }}>
+              <Text
+                style={{
+                  color: COLORS.yellow,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: 1.7,
+                }}
+              >
+                START WHERE YOU ARE
+              </Text>
+              <Heading level={2} style={{ color: COLORS.card }}>
+                Make room for one more tree.
+              </Heading>
+              <Text style={{ color: "#E7EBDD", fontSize: 15, lineHeight: 1.65 }}>
+                Find a local planting group, care for a tree in your street,
+                protect a nearby green space or help someone learn why trees
+                matter. Every thoughtful action can help a living landscape
+                flourish.
+              </Text>
+              <Button
+                href="#top"
+                style={{
+                  backgroundColor: COLORS.yellow,
+                  color: COLORS.ink,
+                }}
+              >
+                Share the message
+              </Button>
             </Column>
-            <Divider style={{ borderTop: { width: 1, style: "solid", color: "#D8D4C5" } }} />
-            <Column style={{ gap: 5 }}>
-              <Heading level={3} style={{ color: "#548C68" }}>One word at a time</Heading>
-              <Text style={{ color: "#656A68", fontSize: 14 }}>A clear next step without pressure.</Text>
+            <Column
+              style={{
+                flex: 0.65,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              <Svg
+                width={250}
+                height={230}
+                viewBox="0 0 250 230"
+                title="Small paper tree illustration"
+              >
+                <Ellipse cx={125} cy={208} rx={105} ry={16} style={{ fill: "#244A36" }} />
+                <Ellipse cx={125} cy={142} rx={13} ry={65} style={{ fill: "#A77B4E" }} />
+                <Ellipse cx={78} cy={91} rx={49} ry={48} style={{ fill: "#A9D6B4" }} />
+                <Ellipse cx={125} cy={58} rx={57} ry={53} style={{ fill: "#78A77A" }} />
+                <Ellipse cx={175} cy={94} rx={47} ry={46} style={{ fill: "#DCE9C5" }} />
+                <Ellipse cx={125} cy={116} rx={42} ry={40} style={{ fill: "#548C68" }} />
+                <Ellipse cx={55} cy={37} rx={7} ry={7} style={{ fill: COLORS.yellow }} />
+                <Ellipse cx={195} cy={42} rx={6} ry={6} style={{ fill: COLORS.coral }} />
+              </Svg>
+              <Text style={{ color: "#E7EBDD", fontSize: 12 }}>
+                Plant. Protect. Pass it on.
+              </Text>
             </Column>
-            <Divider style={{ borderTop: { width: 1, style: "solid", color: "#D8D4C5" } }} />
-            <Column style={{ gap: 5 }}>
-              <Heading level={3} style={{ color: "#548C68" }}>Progress you can see</Heading>
-              <Text style={{ color: "#656A68", fontSize: 14 }}>A garden that celebrates showing up.</Text>
-            </Column>
-          </Column>
-        </Row>
+          </Row>
+        </Column>
       </Section>
 
-      {/* CTA */}
-      <Section style={{ backgroundColor: "#252A30", padding: [72, 42], gap: 22 }}>
-        <Html html={'<span id="start"></span>'} />
-        <Row stackOnMobile style={{ alignItems: "center", gap: 38 }}>
-          <Column style={{ flex: 1, gap: 14 }}>
-            <Text style={{ color: "#E9D65B", fontSize: 12, fontWeight: 700, letterSpacing: 1.6 }}>BEGIN WITH ONE LITTLE WORD</Text>
-            <Heading level={2} style={{ color: "#FFFDF5" }}>Plant the first seed today.</Heading>
-            <Text style={{ color: "#E4E0D3", fontSize: 16, lineHeight: 1.55 }}>Pick a gentle starting point. There's no score to chase and no race to finish. Just a few words, a little time, and a garden that grows.</Text>
-            <Button href="#top">Start today's reading round</Button>
-          </Column>
-          <Column style={{ flex: 0.8, gap: 12 }}>
-            <Heading level={3} style={{ color: "#FFFDF5" }}>Choose your little round</Heading>
-            <Html html={PLAN_MARKUP} />
-          </Column>
-        </Row>
-      </Section>
-
-      {/* Bind the interactive islands after their markup has been rendered. */}
-      <Html html={GAME_SCRIPT} />
-
-      {/* Footer */}
-      <Section style={{ backgroundColor: "#FFFDF5", padding: [25, 42], gap: 13 }}>
+      {/* FOOTER */}
+      <Section
+        style={{
+          backgroundColor: COLORS.card,
+          padding: [26, 42],
+          gap: 14,
+          border: {
+            top: { width: 1, style: "solid", color: "#E4E0D3" },
+          },
+        }}
+      >
         <Row stackOnMobile style={{ alignItems: "center", justifyContent: "space-between", gap: 14 }}>
-          <Text style={{ fontFamily: '"Chillax", sans-serif', fontSize: 25, fontWeight: 700 }}>paper<Span style={{ color: "#548C68" }}>garden</Span><Span style={{ color: "#E9795F" }}>.</Span></Text>
+          <PaperWordmark />
           <Row stackOnMobile style={{ gap: 18 }}>
-            <Link href="#how" style={{ color: "#41484C", fontSize: 12 }}>How it works</Link>
-            <Link href="#garden" style={{ color: "#41484C", fontSize: 12 }}>The garden</Link>
-            <Link href="#grown" style={{ color: "#41484C", fontSize: 12 }}>For grown-ups</Link>
-            <Link href="#start" style={{ color: "#41484C", fontSize: 12 }}>Begin</Link>
+            <Link href="#why" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none" }}>
+              Why trees
+            </Link>
+            <Link href="#life" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none" }}>
+              Life & nature
+            </Link>
+            <Link href="#action" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none" }}>
+              Take action
+            </Link>
           </Row>
         </Row>
-        <Divider style={{ borderTop: { width: 1, style: "solid", color: "#E4E0D3" } }} />
-        <Text style={{ color: "#656A68", fontSize: 11 }}>A small reading ritual, made with care. Sample experience and illustrative progress data.</Text>
+        <Divider
+          style={{
+            borderTop: { width: 1, style: "solid", color: "#E4E0D3" },
+          }}
+        />
+        <Text style={{ color: COLORS.muted, fontSize: 11 }}>
+          Paper Garden — a small reminder that a healthier world needs living
+          trees, thriving habitats and people who care for them.
+        </Text>
       </Section>
     </Page>
   );
