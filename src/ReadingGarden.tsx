@@ -3,6 +3,7 @@ import {
   Column,
   Divider,
   Heading,
+  Image,
   Link,
   Page,
   Row,
@@ -21,11 +22,13 @@ import {
  * A four-section editorial awareness page about the importance of trees,
  * forests and green spaces.
  *
- * Built with native Hyper Elements components:
- * Page, Section, Row, Column, Heading, Text, Span, Link, Button,
- * Divider, Svg and Ellipse.
- *
- * No raw HTML island is used for the page structure.
+ * Responsive for desktop, tablet and phone:
+ * - Phone styles start at 900px (Page `breakpoints`), so tablets in portrait
+ *   get the stacked layout too instead of squeezed columns.
+ * - Rows stack on phones; padding, gaps and small type step up/down there.
+ * - The paper illustrations are drawn from the shape lists below and shown as
+ *   images, which scale down to fit their parent. (A native Svg has a fixed
+ *   pixel size and no width style, so it would overflow a phone.)
  */
 
 const COLORS = {
@@ -43,7 +46,23 @@ const COLORS = {
   coral: "#E9795F",
   line: "#D8D4C5",
   dark: "#252A30",
+  // Chunky buttons: a bright face with a darker "lip" along the bottom edge.
+  buttonFace: "#F4D21F",
+  buttonLip: "#D2A900",
+  buttonFaceHover: "#F8DD55",
+  creamLip: "#D9D0BA",
 };
+
+// One rounded geometric family for headings, body and buttons.
+// Swap the family name and the files below to change the font everywhere.
+const FONT = '"Outfit", "Trebuchet MS", ui-rounded, sans-serif';
+const FONT_FILES = "https://cdn.jsdelivr.net/npm/@fontsource/outfit@5.3.0/files";
+const FONT_FACES = ([400, 500, 600, 700] as const).map((weight) => ({
+  family: "Outfit",
+  src: `${FONT_FILES}/outfit-latin-${weight}-normal.woff2`,
+  format: "woff2" as const,
+  weight,
+}));
 
 const paperGardenTheme = defineTheme({
   colors: {
@@ -55,8 +74,8 @@ const paperGardenTheme = defineTheme({
     border: COLORS.line,
   },
   fonts: {
-    body: '"DM Sans", "Trebuchet MS", sans-serif',
-    heading: '"Chillax", "Trebuchet MS", ui-rounded, sans-serif',
+    body: FONT,
+    heading: FONT,
   },
   fontSizes: {
     body: 16,
@@ -66,25 +85,39 @@ const paperGardenTheme = defineTheme({
   },
   elements: {
     Heading: {
-      fontFamily: '"Chillax", "Trebuchet MS", ui-rounded, sans-serif',
+      fontFamily: FONT,
       color: COLORS.ink,
-      fontWeight: 600,
+      fontWeight: 700,
       lineHeight: 1.06,
       by: {
         level: {
-          1: { fontSize: 68, mobile: { fontSize: 43 } },
+          1: {
+            fontSize: 68,
+            letterSpacing: -2.4,
+            mobile: { fontSize: 43, letterSpacing: -1.2 },
+          },
           2: { fontSize: 48, mobile: { fontSize: 34 } },
           3: { fontSize: 25, mobile: { fontSize: 22 } },
         },
       },
     },
+    // Chunky, tactile buttons: rounded face, thick darker bottom edge.
     Button: {
-      borderRadius: 14,
-      backgroundColor: COLORS.yellow,
+      borderRadius: 16,
+      backgroundColor: COLORS.buttonFace,
       color: COLORS.ink,
+      fontSize: 15,
       fontWeight: 700,
-      padding: [14, 21],
-      hover: { backgroundColor: "#F0E18A" },
+      padding: [15, 26],
+      border: { bottom: { width: 5, style: "solid", color: COLORS.buttonLip } },
+      hover: { backgroundColor: COLORS.buttonFaceHover },
+      variants: {
+        secondary: {
+          backgroundColor: COLORS.card,
+          border: { bottom: { width: 5, style: "solid", color: COLORS.creamLip } },
+          hover: { backgroundColor: "#FFFFFF" },
+        },
+      },
     },
     Link: {
       color: COLORS.green,
@@ -101,6 +134,13 @@ const paperGardenTheme = defineTheme({
       color: COLORS.body,
       fontSize: 19,
       lineHeight: 1.55,
+      mobile: { fontSize: 17 },
+    },
+    leadSm: {
+      color: COLORS.body,
+      fontSize: 17,
+      lineHeight: 1.55,
+      mobile: { fontSize: 16 },
     },
     bodyCopy: {
       color: COLORS.body,
@@ -112,6 +152,10 @@ const paperGardenTheme = defineTheme({
       fontSize: 13,
       lineHeight: 1.55,
     },
+    statValue: {
+      fontSize: 37,
+      mobile: { fontSize: 32 },
+    },
     paperCard: {
       backgroundColor: COLORS.card,
       border: { width: 1, style: "solid", color: "#E2DECF" },
@@ -122,6 +166,141 @@ const paperGardenTheme = defineTheme({
   },
 });
 
+/* ------------------------------------------------------------------ */
+/* Illustrations                                                       */
+/* Each drawing is a list of ellipses: [cx, cy, rx, ry, fill], drawn   */
+/* back to front. They are shown as images so they scale with the page. */
+/* ------------------------------------------------------------------ */
+
+type Oval = readonly [cx: number, cy: number, rx: number, ry: number, fill: string];
+type Art = {
+  width: number;
+  height: number;
+  viewBox?: string;
+  shapes: readonly Oval[];
+};
+
+const HERO_TREE: Art = {
+  width: 560,
+  height: 430,
+  shapes: [
+    [280, 388, 250, 34, "#D3C69C"],
+    [160, 360, 170, 48, "#DCE9C5"],
+    [420, 365, 175, 52, "#A9D6B4"],
+    [280, 220, 30, 145, "#9A7048"],
+    [180, 170, 100, 93, "#6F9B72"],
+    [285, 110, 116, 105, "#548C68"],
+    [390, 177, 104, 95, "#A9D6B4"],
+    [278, 232, 95, 88, "#78A77A"],
+    [115, 80, 19, 19, "#E9D65B"],
+    [448, 76, 12, 12, "#E9795F"],
+    [390, 285, 8, 8, "#E9D65B"],
+    [165, 285, 7, 7, "#FFFDF5"],
+  ],
+};
+
+const HILLS_SHAPES: readonly Oval[] = [
+  [660, 210, 760, 125, "#E7DDBB"],
+  [340, 215, 520, 105, COLORS.paleGreen],
+  [1010, 220, 530, 112, COLORS.leaf],
+  [670, 238, 650, 90, "#6F9B72"],
+  [665, 104, 38, 38, COLORS.green],
+  [635, 125, 28, 27, "#78A77A"],
+  [694, 127, 29, 28, "#A9D6B4"],
+  [665, 162, 7, 35, "#9A7048"],
+];
+
+// Wide strip for desktop and tablet.
+const HILLS: Art = { width: 1320, height: 210, shapes: HILLS_SHAPES };
+
+// The same hills cropped around the tree, so it stays a readable size on phones.
+const HILLS_CROPPED: Art = {
+  width: 670,
+  height: 210,
+  viewBox: "330 0 670 210",
+  shapes: HILLS_SHAPES,
+};
+
+const HABITAT_TREE: Art = {
+  width: 560,
+  height: 320,
+  shapes: [
+    [280, 290, 250, 25, "#D8D4C5"],
+    [280, 172, 23, 110, "#9A7048"],
+    [175, 112, 100, 83, "#6F9B72"],
+    [278, 76, 110, 83, COLORS.green],
+    [385, 120, 100, 85, COLORS.leaf],
+    [280, 155, 88, 74, "#78A77A"],
+    [120, 235, 48, 20, COLORS.sand],
+    [440, 235, 50, 20, COLORS.paleGreen],
+    [170, 88, 8, 8, COLORS.yellow],
+    [350, 61, 7, 7, COLORS.coral],
+    [420, 139, 8, 8, COLORS.yellow],
+    [245, 205, 6, 6, COLORS.card],
+  ],
+};
+
+const SMALL_TREE: Art = {
+  width: 250,
+  height: 230,
+  shapes: [
+    [125, 208, 105, 16, "#244A36"],
+    [125, 142, 13, 65, "#A77B4E"],
+    [78, 91, 49, 48, "#A9D6B4"],
+    [125, 58, 57, 53, "#78A77A"],
+    [175, 94, 47, 46, "#DCE9C5"],
+    [125, 116, 42, 40, "#548C68"],
+    [55, 37, 7, 7, COLORS.yellow],
+    [195, 42, 6, 6, COLORS.coral],
+  ],
+};
+
+function artSource({ width, height, viewBox, shapes }: Art) {
+  const body = shapes
+    .map(
+      ([cx, cy, rx, ry, fill]) =>
+        `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}"/>`,
+    )
+    .join("");
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" ` +
+    `viewBox="${viewBox ?? `0 0 ${width} ${height}`}">${body}</svg>`;
+  return {
+    src: `data:image/svg+xml,${encodeURIComponent(svg)}`,
+    width,
+    height,
+  };
+}
+
+/**
+ * A drawing that never grows past its own size and shrinks to fit its parent.
+ * With `fill` it stretches to the parent's width instead (still scaling down).
+ */
+function Picture({
+  art,
+  alt,
+  fill = false,
+  hidden,
+}: {
+  art: Art;
+  alt: string;
+  fill?: boolean;
+  hidden?: { mobile?: boolean; desktop?: boolean };
+}) {
+  return (
+    <Image
+      src={artSource(art)}
+      alt={alt}
+      style={fill ? { width: "100%" } : undefined}
+      hidden={hidden}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Small components                                                    */
+/* ------------------------------------------------------------------ */
+
 function Eyebrow({ children }: { children: string }) {
   return <Text style={{ apply: ["eyebrow"] }}>{children}</Text>;
 }
@@ -130,7 +309,7 @@ function PaperWordmark() {
   return (
     <Text
       style={{
-        fontFamily: '"Chillax", "Trebuchet MS", sans-serif',
+        fontFamily: FONT,
         fontSize: 27,
         fontWeight: 700,
         letterSpacing: -1.4,
@@ -162,21 +341,18 @@ function LeafMark({ color = COLORS.green }: { color?: string }) {
 function Landscape() {
   return (
     <Column style={{ width: "100%", gap: 0 }}>
-      <Svg
-        width={1320}
-        height={210}
-        viewBox="0 0 1320 210"
-        title="Layered paper hills with a young tree"
-      >
-        <Ellipse cx={660} cy={210} rx={760} ry={125} style={{ fill: "#E7DDBB" }} />
-        <Ellipse cx={340} cy={215} rx={520} ry={105} style={{ fill: COLORS.paleGreen }} />
-        <Ellipse cx={1010} cy={220} rx={530} ry={112} style={{ fill: COLORS.leaf }} />
-        <Ellipse cx={670} cy={238} rx={650} ry={90} style={{ fill: "#6F9B72" }} />
-        <Ellipse cx={665} cy={104} rx={38} ry={38} style={{ fill: COLORS.green }} />
-        <Ellipse cx={635} cy={125} rx={28} ry={27} style={{ fill: "#78A77A" }} />
-        <Ellipse cx={694} cy={127} rx={29} ry={28} style={{ fill: "#A9D6B4" }} />
-        <Ellipse cx={665} cy={162} rx={7} ry={35} style={{ fill: "#9A7048" }} />
-      </Svg>
+      <Picture
+        art={HILLS}
+        alt="Layered paper hills with a young tree"
+        fill
+        hidden={{ mobile: true }}
+      />
+      <Picture
+        art={HILLS_CROPPED}
+        alt="Layered paper hills with a young tree"
+        fill
+        hidden={{ desktop: true }}
+      />
     </Column>
   );
 }
@@ -207,13 +383,20 @@ function StatCard({
         gap: 8,
       }}
     >
-      <Heading level={2} style={{ color: accent, fontSize: 37 }}>
+      <Heading level={2} style={{ apply: ["statValue"], color: accent }}>
         {value}
       </Heading>
       <Text style={{ color: COLORS.ink, fontSize: 14, fontWeight: 700 }}>
         {label}
       </Text>
-      <Text style={{ color: COLORS.body, fontSize: 12, lineHeight: 1.5 }}>
+      <Text
+        style={{
+          color: COLORS.body,
+          fontSize: 12,
+          lineHeight: 1.5,
+          mobile: { fontSize: 13 },
+        }}
+      >
         {detail}
       </Text>
     </Column>
@@ -244,7 +427,10 @@ function BenefitCard({
         gap: 13,
       }}
     >
-      <Row style={{ alignItems: "center", justifyContent: "space-between" }}>
+      <Row
+        stackOnMobile={false}
+        style={{ alignItems: "center", justifyContent: "space-between" }}
+      >
         <Text
           style={{
             color: "#A56A32",
@@ -258,18 +444,33 @@ function BenefitCard({
         <Text style={{ color: COLORS.green, fontSize: 27 }}>{symbol}</Text>
       </Row>
       <Heading level={3}>{title}</Heading>
-      <Text style={{ color: COLORS.body, fontSize: 13, lineHeight: 1.6 }}>
+      <Text
+        style={{
+          color: COLORS.body,
+          fontSize: 13,
+          lineHeight: 1.6,
+          mobile: { fontSize: 14 },
+        }}
+      >
         {description}
       </Text>
     </Column>
   );
 }
 
+const SECTION_BAND = {
+  padding: [82, 42] as [number, number],
+  gap: 34,
+  mobile: { padding: [52, 22] as [number, number], gap: 26 },
+};
+
 export default function PaperGardenTreesPage() {
   return (
     <Page
       theme={paperGardenTheme}
       width={1440}
+      breakpoints={{ mobile: 900 }}
+      fonts={FONT_FACES}
       lang="en"
       title="Paper Garden — A world with more trees"
       description="Discover how trees support climate, biodiversity, water and healthier communities."
@@ -279,7 +480,7 @@ export default function PaperGardenTreesPage() {
         gap: 0,
       }}
     >
-      {/* NAVIGATION */}
+      {/* NAVIGATION — links stay in one wrapping line under the wordmark on phones */}
       <Section
         style={{
           backgroundColor: COLORS.card,
@@ -287,42 +488,61 @@ export default function PaperGardenTreesPage() {
           border: {
             bottom: { width: 1, style: "solid", color: "#E4E0D3" },
           },
+          mobile: { padding: [14, 22] },
         }}
       >
-        <Row style={{ alignItems: "center", justifyContent: "space-between", gap: 18 }}>
+        <Row
+          style={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 18,
+            mobile: { gap: 10 },
+          }}
+        >
           <PaperWordmark />
           <Row
-            stackOnMobile
-            style={{ alignItems: "center", justifyContent: "end", gap: 22 }}
+            stackOnMobile={false}
+            style={{
+              alignItems: "center",
+              justifyContent: "start",
+              gap: 22,
+              flex: "none",
+              flexWrap: "wrap",
+              mobile: { gap: 18 },
+            }}
           >
-            <Link href="#why" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none" }}>
+            <Link href="#why" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none", flex: "none" }}>
               Why trees
             </Link>
-            <Link href="#life" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none" }}>
+            <Link href="#life" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none", flex: "none" }}>
               Life & nature
             </Link>
-            <Link href="#action" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none" }}>
+            <Link href="#action" style={{ color: COLORS.body, fontSize: 13, textDecoration: "none", flex: "none" }}>
               Take action
             </Link>
-            <Button href="#action">Grow a greener future</Button>
+            {/* The hero already has this call to action on phones. */}
+            <Button href="#action" hidden={{ mobile: true }}>
+              Grow a greener future
+            </Button>
           </Row>
         </Row>
       </Section>
 
       {/* SECTION 1 — HERO */}
-      <Section style={{ padding: [76, 42, 30], gap: 26 }}>
-        <Row stackOnMobile style={{ alignItems: "center", gap: 54 }}>
+      <Section
+        style={{
+          padding: [76, 42, 30],
+          gap: 26,
+          mobile: { padding: [40, 22, 24], gap: 20 },
+        }}
+      >
+        <Row
+          stackOnMobile
+          style={{ alignItems: "center", gap: 54, mobile: { gap: 26 } }}
+        >
           <Column style={{ flex: 1.05, gap: 21 }}>
             <Eyebrow>A little more green changes everything</Eyebrow>
-            <Heading
-              level={1}
-              style={{
-                fontSize: 68,
-                mobile: { fontSize: 43 },
-                maxWidth: 620,
-                letterSpacing: -3.2,
-              }}
-            >
+            <Heading level={1} style={{ maxWidth: 620 }}>
               A world with more trees is a world that can{" "}
               <Span style={{ color: COLORS.green }}>breathe.</Span>
             </Heading>
@@ -331,20 +551,22 @@ export default function PaperGardenTreesPage() {
               cities, shelter wildlife, protect soil and help keep the natural
               systems we all depend on in balance.
             </Text>
-            <Row stackOnMobile style={{ gap: 12, alignItems: "center" }}>
-              <Button href="#why">Discover why trees matter</Button>
+            <Row
+              stackOnMobile
+              style={{ gap: 12, alignItems: "center", mobile: { gap: 10 } }}
+            >
+              <Button href="#why" style={{ flex: "none" }}>
+                Discover why trees matter
+              </Button>
               <Button
                 href="#action"
-                style={{
-                  backgroundColor: COLORS.card,
-                  color: COLORS.ink,
-                  border: { width: 1, style: "solid", color: COLORS.line },
-                }}
+                variant="secondary"
+                style={{ flex: "none" }}
               >
                 Find your part
               </Button>
             </Row>
-            <Text style={{ color: COLORS.muted, fontSize: 12 }}>
+            <Text style={{ color: COLORS.muted, fontSize: 12, mobile: { fontSize: 13 } }}>
               A small invitation to notice, protect and grow the living world.
             </Text>
           </Column>
@@ -356,31 +578,18 @@ export default function PaperGardenTreesPage() {
               borderRadius: 26,
               padding: 18,
               gap: 0,
+              mobile: { padding: 14, maxWidth: 560 },
             }}
           >
-            <Svg
-              width={560}
-              height={430}
-              viewBox="0 0 560 430"
-              title="Paper-cut illustration of a flourishing tree"
-            >
-              <Ellipse cx={280} cy={388} rx={250} ry={34} style={{ fill: "#D3C69C" }} />
-              <Ellipse cx={160} cy={360} rx={170} ry={48} style={{ fill: "#DCE9C5" }} />
-              <Ellipse cx={420} cy={365} rx={175} ry={52} style={{ fill: "#A9D6B4" }} />
-              <Ellipse cx={280} cy={220} rx={30} ry={145} style={{ fill: "#9A7048" }} />
-              <Ellipse cx={180} cy={170} rx={100} ry={93} style={{ fill: "#6F9B72" }} />
-              <Ellipse cx={285} cy={110} rx={116} ry={105} style={{ fill: "#548C68" }} />
-              <Ellipse cx={390} cy={177} rx={104} ry={95} style={{ fill: "#A9D6B4" }} />
-              <Ellipse cx={278} cy={232} rx={95} ry={88} style={{ fill: "#78A77A" }} />
-              <Ellipse cx={115} cy={80} rx={19} ry={19} style={{ fill: "#E9D65B" }} />
-              <Ellipse cx={448} cy={76} rx={12} ry={12} style={{ fill: "#E9795F" }} />
-              <Ellipse cx={390} cy={285} rx={8} ry={8} style={{ fill: "#E9D65B" }} />
-              <Ellipse cx={165} cy={285} rx={7} ry={7} style={{ fill: "#FFFDF5" }} />
-            </Svg>
+            <Picture
+              art={HERO_TREE}
+              alt="Paper-cut illustration of a flourishing tree"
+              fill
+            />
             <Text
               style={{
                 color: COLORS.deepGreen,
-                fontFamily: '"Chillax", sans-serif',
+                fontFamily: FONT,
                 fontSize: 15,
                 fontWeight: 600,
                 textAlign: "center",
@@ -397,11 +606,13 @@ export default function PaperGardenTreesPage() {
       <Section
         style={{
           backgroundColor: COLORS.card,
-          padding: [82, 42],
-          gap: 34,
+          ...SECTION_BAND,
         }}
       >
-        <Row stackOnMobile style={{ alignItems: "end", gap: 42 }}>
+        <Row
+          stackOnMobile
+          style={{ alignItems: "end", gap: 42, mobile: { gap: 14 } }}
+        >
           <Column style={{ flex: 1.25, gap: 14 }}>
             <Link href="#why" attrs={{ id: "why" }} style={{ color: "#A56A32", fontSize: 12, fontWeight: 700, letterSpacing: 1.8, textDecoration: "none" }}>01 / THE PLANET'S NATURAL HELPERS</Link>
             <Heading level={2}>
@@ -410,14 +621,14 @@ export default function PaperGardenTreesPage() {
             </Heading>
           </Column>
           <Column style={{ flex: 0.9, gap: 8 }}>
-            <Text style={{ apply: ["lead"], fontSize: 17 }}>
+            <Text style={{ apply: ["leadSm"] }}>
               From the air we breathe to the temperature of our streets, trees
               quietly support the conditions that make life possible.
             </Text>
           </Column>
         </Row>
 
-        <Row stackOnMobile style={{ gap: 17 }}>
+        <Row stackOnMobile style={{ gap: 17, mobile: { gap: 14 } }}>
           <BenefitCard
             number="01 / CLIMATE"
             title="A natural climate ally"
@@ -441,7 +652,10 @@ export default function PaperGardenTreesPage() {
           />
         </Row>
 
-        <Row stackOnMobile style={{ alignItems: "center", gap: 20 }}>
+        <Row
+          stackOnMobile
+          style={{ alignItems: "center", gap: 20, mobile: { gap: 14 } }}
+        >
           <StatCard
             value="CO₂"
             label="Carbon storage"
@@ -461,7 +675,7 @@ export default function PaperGardenTreesPage() {
             tone="coral"
           />
         </Row>
-        <Text style={{ color: COLORS.muted, fontSize: 11 }}>
+        <Text style={{ color: COLORS.muted, fontSize: 11, mobile: { fontSize: 12 } }}>
           Note: Benefits vary by tree species, location, climate and how green
           spaces are planned and maintained.
         </Text>
@@ -471,18 +685,21 @@ export default function PaperGardenTreesPage() {
       <Section
         style={{
           backgroundColor: "#EFEDDF",
-          padding: [82, 42],
+          ...SECTION_BAND,
           gap: 32,
         }}
       >
-        <Row stackOnMobile style={{ alignItems: "center", gap: 44 }}>
+        <Row
+          stackOnMobile
+          style={{ alignItems: "center", gap: 44, mobile: { gap: 26 } }}
+        >
           <Column style={{ flex: 0.95, gap: 13 }}>
             <Link href="#life" attrs={{ id: "life" }} style={{ color: "#A56A32", fontSize: 12, fontWeight: 700, letterSpacing: 1.8, textDecoration: "none" }}>02 / A HOME FOR LIVING THINGS</Link>
             <Heading level={2}>
               Every tree is part of a much bigger{" "}
               <Span style={{ color: COLORS.green }}>story.</Span>
             </Heading>
-            <Text style={{ apply: ["lead"], fontSize: 17 }}>
+            <Text style={{ apply: ["leadSm"] }}>
               A tree is not standing alone. It is a living neighbourhood for
               birds, insects, fungi, mammals and countless organisms beneath
               the soil.
@@ -501,34 +718,21 @@ export default function PaperGardenTreesPage() {
               borderRadius: 24,
               padding: 18,
               gap: 12,
+              mobile: { padding: 14, maxWidth: 560 },
             }}
           >
-            <Svg
-              width={560}
-              height={320}
-              viewBox="0 0 560 320"
-              title="Paper illustration of a tree canopy and living habitat"
-            >
-              <Ellipse cx={280} cy={290} rx={250} ry={25} style={{ fill: "#D8D4C5" }} />
-              <Ellipse cx={280} cy={172} rx={23} ry={110} style={{ fill: "#9A7048" }} />
-              <Ellipse cx={175} cy={112} rx={100} ry={83} style={{ fill: "#6F9B72" }} />
-              <Ellipse cx={278} cy={76} rx={110} ry={83} style={{ fill: COLORS.green }} />
-              <Ellipse cx={385} cy={120} rx={100} ry={85} style={{ fill: COLORS.leaf }} />
-              <Ellipse cx={280} cy={155} rx={88} ry={74} style={{ fill: "#78A77A" }} />
-              <Ellipse cx={120} cy={235} rx={48} ry={20} style={{ fill: COLORS.sand }} />
-              <Ellipse cx={440} cy={235} rx={50} ry={20} style={{ fill: COLORS.paleGreen }} />
-              <Ellipse cx={170} cy={88} rx={8} ry={8} style={{ fill: COLORS.yellow }} />
-              <Ellipse cx={350} cy={61} rx={7} ry={7} style={{ fill: COLORS.coral }} />
-              <Ellipse cx={420} cy={139} rx={8} ry={8} style={{ fill: COLORS.yellow }} />
-              <Ellipse cx={245} cy={205} rx={6} ry={6} style={{ fill: COLORS.card }} />
-            </Svg>
-            <Text style={{ color: COLORS.muted, fontSize: 11, textAlign: "center" }}>
+            <Picture
+              art={HABITAT_TREE}
+              alt="Paper illustration of a tree canopy and living habitat"
+              fill
+            />
+            <Text style={{ color: COLORS.muted, fontSize: 11, textAlign: "center", mobile: { fontSize: 12 } }}>
               A healthy tree supports life above and below the ground.
             </Text>
           </Column>
         </Row>
 
-        <Row stackOnMobile style={{ gap: 17 }}>
+        <Row stackOnMobile style={{ gap: 17, mobile: { gap: 14 } }}>
           <BenefitCard
             number="01 / BIODIVERSITY"
             title="Shelter for wildlife"
@@ -554,8 +758,17 @@ export default function PaperGardenTreesPage() {
       </Section>
 
       {/* SECTION 4 — PRACTICAL ACTION */}
-      <Section style={{ padding: [84, 42], gap: 32 }}>
-        <Row stackOnMobile style={{ alignItems: "end", gap: 42 }}>
+      <Section
+        style={{
+          padding: [84, 42],
+          gap: 32,
+          mobile: { padding: [52, 22], gap: 26 },
+        }}
+      >
+        <Row
+          stackOnMobile
+          style={{ alignItems: "end", gap: 42, mobile: { gap: 14 } }}
+        >
           <Column style={{ flex: 1.2, gap: 14 }}>
             <Link href="#action" attrs={{ id: "action" }} style={{ color: "#A56A32", fontSize: 12, fontWeight: 700, letterSpacing: 1.8, textDecoration: "none" }}>03 / SMALL ACTIONS, LASTING ROOTS</Link>
             <Heading level={2}>
@@ -564,7 +777,7 @@ export default function PaperGardenTreesPage() {
             </Heading>
           </Column>
           <Column style={{ flex: 0.9, gap: 8 }}>
-            <Text style={{ apply: ["lead"], fontSize: 17 }}>
+            <Text style={{ apply: ["leadSm"] }}>
               Planting a tree is a beginning. Caring for it, protecting existing
               forests and choosing the right native species are what help it
               thrive.
@@ -572,7 +785,7 @@ export default function PaperGardenTreesPage() {
           </Column>
         </Row>
 
-        <Row stackOnMobile style={{ gap: 17 }}>
+        <Row stackOnMobile style={{ gap: 17, mobile: { gap: 14 } }}>
           <BenefitCard
             number="01 / PLANT WELL"
             title="Choose the right tree"
@@ -602,9 +815,13 @@ export default function PaperGardenTreesPage() {
             borderRadius: 26,
             padding: [34, 34],
             gap: 20,
+            mobile: { padding: [28, 22] },
           }}
         >
-          <Row stackOnMobile style={{ alignItems: "center", gap: 28 }}>
+          <Row
+            stackOnMobile
+            style={{ alignItems: "center", gap: 28, mobile: { gap: 22 } }}
+          >
             <Column style={{ flex: 1, gap: 13 }}>
               <Text
                 style={{
@@ -619,21 +836,19 @@ export default function PaperGardenTreesPage() {
               <Heading level={2} style={{ color: COLORS.card }}>
                 Make room for one more tree.
               </Heading>
-              <Text style={{ color: "#E7EBDD", fontSize: 15, lineHeight: 1.65 }}>
+              <Text
+                style={{
+                  color: "#E7EBDD",
+                  fontSize: 15,
+                  lineHeight: 1.65,
+                }}
+              >
                 Find a local planting group, care for a tree in your street,
                 protect a nearby green space or help someone learn why trees
                 matter. Every thoughtful action can help a living landscape
                 flourish.
               </Text>
-              <Button
-                href="#top"
-                style={{
-                  backgroundColor: COLORS.yellow,
-                  color: COLORS.ink,
-                }}
-              >
-                Share the message
-              </Button>
+              <Button href="#top">Share the message</Button>
             </Column>
             <Column
               style={{
@@ -643,22 +858,11 @@ export default function PaperGardenTreesPage() {
                 gap: 8,
               }}
             >
-              <Svg
-                width={250}
-                height={230}
-                viewBox="0 0 250 230"
-                title="Small paper tree illustration"
-              >
-                <Ellipse cx={125} cy={208} rx={105} ry={16} style={{ fill: "#244A36" }} />
-                <Ellipse cx={125} cy={142} rx={13} ry={65} style={{ fill: "#A77B4E" }} />
-                <Ellipse cx={78} cy={91} rx={49} ry={48} style={{ fill: "#A9D6B4" }} />
-                <Ellipse cx={125} cy={58} rx={57} ry={53} style={{ fill: "#78A77A" }} />
-                <Ellipse cx={175} cy={94} rx={47} ry={46} style={{ fill: "#DCE9C5" }} />
-                <Ellipse cx={125} cy={116} rx={42} ry={40} style={{ fill: "#548C68" }} />
-                <Ellipse cx={55} cy={37} rx={7} ry={7} style={{ fill: COLORS.yellow }} />
-                <Ellipse cx={195} cy={42} rx={6} ry={6} style={{ fill: COLORS.coral }} />
-              </Svg>
-              <Text style={{ color: "#E7EBDD", fontSize: 12 }}>
+              <Picture
+                art={SMALL_TREE}
+                alt="Small paper tree illustration"
+              />
+              <Text style={{ color: "#E7EBDD", fontSize: 12, mobile: { fontSize: 13 } }}>
                 Plant. Protect. Pass it on.
               </Text>
             </Column>
@@ -675,18 +879,29 @@ export default function PaperGardenTreesPage() {
           border: {
             top: { width: 1, style: "solid", color: "#E4E0D3" },
           },
+          mobile: { padding: [24, 22] },
         }}
       >
-        <Row stackOnMobile style={{ alignItems: "center", justifyContent: "space-between", gap: 14 }}>
+        <Row
+          stackOnMobile
+          style={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 14,
+          }}
+        >
           <PaperWordmark />
-          <Row stackOnMobile style={{ gap: 18 }}>
-            <Link href="#why" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none" }}>
+          <Row
+            stackOnMobile={false}
+            style={{ gap: 18, flex: "none", flexWrap: "wrap", mobile: { gap: 16 } }}
+          >
+            <Link href="#why" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none", flex: "none", mobile: { fontSize: 13 } }}>
               Why trees
             </Link>
-            <Link href="#life" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none" }}>
+            <Link href="#life" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none", flex: "none", mobile: { fontSize: 13 } }}>
               Life & nature
             </Link>
-            <Link href="#action" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none" }}>
+            <Link href="#action" style={{ color: COLORS.body, fontSize: 12, textDecoration: "none", flex: "none", mobile: { fontSize: 13 } }}>
               Take action
             </Link>
           </Row>
@@ -696,7 +911,7 @@ export default function PaperGardenTreesPage() {
             borderTop: { width: 1, style: "solid", color: "#E4E0D3" },
           }}
         />
-        <Text style={{ color: COLORS.muted, fontSize: 11 }}>
+        <Text style={{ color: COLORS.muted, fontSize: 11, mobile: { fontSize: 12 } }}>
           Paper Garden — a small reminder that a healthier world needs living
           trees, thriving habitats and people who care for them.
         </Text>
