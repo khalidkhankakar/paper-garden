@@ -14,23 +14,36 @@ const nothing: Rendered = { html: "", plainText: "" };
  * Give it a stable element (a constant, or from useMemo), or it renders each time.
  */
 export function useRender(element: ReactElement | null): Rendered {
-    const [rendered, setRendered] = useState(nothing);
+    const [rendered, setRendered] = useState<{
+        element: ReactElement | null;
+        result: Rendered;
+    }>({
+        element: null,
+        result: nothing,
+    });
 
     useEffect(() => {
         if (!element) {
-            setRendered(nothing);
             return;
         }
 
         let current = true;
         render(element).then(
             ({ html, text }) => {
-                if (current) setRendered({ html, plainText: text });
+                if (current) {
+                    setRendered({ element, result: { html, plainText: text } });
+                }
             },
             (e: unknown) => {
                 const message = e instanceof Error ? e.message : String(e);
                 if (current) {
-                    setRendered({ html: `<!-- Render error: ${message} -->`, plainText: `Render error: ${message}` });
+                    setRendered({
+                        element,
+                        result: {
+                            html: `<!-- Render error: ${message} -->`,
+                            plainText: `Render error: ${message}`,
+                        },
+                    });
                 }
             }
         );
@@ -40,5 +53,5 @@ export function useRender(element: ReactElement | null): Rendered {
         };
     }, [element]);
 
-    return rendered;
+    return rendered.element === element ? rendered.result : nothing;
 }
