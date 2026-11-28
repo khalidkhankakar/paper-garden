@@ -15,6 +15,13 @@
       "skillPath": "skills/email-testing/SKILL.md",
       "computedHash": "58f619f6a7570fefb37e4875e627569a1fba63a15ce41970bf036c9f41bc608b"
     },
+    "hallmark": {
+      "source": "Nutlope/hallmark",
+      "commit": "04977e15f3dfd6ee4b74c887dac3eb52665d6c92",
+      "sourceType": "github",
+      "skillPath": "skills/hallmark/SKILL.md",
+      "computedHash": "e5d4ee5cf0af2dcc81a23ef49b587fbfd71236ff9f9df9da12d3bf347e26e572"
+    },
     "hyper-elements": {
       "source": "hyper-elements/hyper-elements",
       "commit": "c4f01bbe9816292558f51d6a277d50f65ba7c0a0",
